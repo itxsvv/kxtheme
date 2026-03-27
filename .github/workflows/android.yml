@@ -24,7 +24,8 @@ jobs:
         echo "KEYSTORE_BASE64=${{ secrets.KEYSTORE_BASE64 }}" >> $GITHUB_ENV
 
     - uses: actions/checkout@v4
-    - name: set up JDK 17
+
+    - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
@@ -33,14 +34,27 @@ jobs:
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+
+    - name: Check signing env
+      run: |
+        test -n "$KEY_ALIAS" && echo "KEY_ALIAS set"
+        test -n "$KEY_PASSWORD" && echo "KEY_PASSWORD set"
+        test -n "$KEYSTORE_PASSWORD" && echo "KEYSTORE_PASSWORD set"
+        echo "KEYSTORE_BASE64 length: ${#KEYSTORE_BASE64}"
+
+    - name: Build release APK
+      run: ./gradlew clean assembleRelease
+
+    - name: Show APK outputs
+      run: find app/build/outputs/apk -maxdepth 3 -type f | sort
 
     - name: Archive APK
       uses: actions/upload-artifact@v4
       with:
         name: app-release
-        path: app/build/outputs/apk/release/app-release.apk
+        path: |
+          app/build/outputs/apk/release/app-release.apk
+          app/build/outputs/apk/release/app-release-unsigned.apk
 
     - name: Create Release
       id: create_release
@@ -51,6 +65,6 @@ jobs:
         prerelease: false
         generateReleaseNotes: true
         allowUpdates: true
-        artifacts: app/build/outputs/apk/release/app-release.apk, app/manifest.json, app/karoo-kxradar.png
+        artifacts: app/build/outputs/apk/release/app-release.apk, app/build/outputs/apk/release/app-release-unsigned.apk, app/karoo-theme.png
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

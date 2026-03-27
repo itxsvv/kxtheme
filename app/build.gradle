@@ -2,10 +2,16 @@ plugins {
     id 'com.android.application'
 }
 
+import java.util.Base64
+
 configurations.configureEach {
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
     exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
 }
+
+def env = System.getenv()
+def hasReleaseSigning = env['KEY_ALIAS'] && env['KEY_PASSWORD'] && env['KEYSTORE_PASSWORD'] && env['KEYSTORE_BASE64']
+def releaseKeystoreFile = null
 
 android {
     namespace 'vibecode.karootheme.ui'
@@ -21,9 +27,26 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    if (hasReleaseSigning) {
+        signingConfigs {
+            release {
+                keyAlias env['KEY_ALIAS']
+                keyPassword env['KEY_PASSWORD']
+
+                releaseKeystoreFile = File.createTempFile('keystore', '.jks')
+                releaseKeystoreFile.writeBytes(Base64.decoder.decode(env['KEYSTORE_BASE64']))
+                storeFile releaseKeystoreFile
+                storePassword env['KEYSTORE_PASSWORD']
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
