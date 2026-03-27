@@ -5,3 +5,4 @@ build/
 local.properties
 *.iml
 agent.md
+release.jks

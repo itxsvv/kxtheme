@@ -34,7 +34,7 @@ android {
                 keyPassword env['KEY_PASSWORD']
 
                 releaseKeystoreFile = File.createTempFile('keystore', '.jks')
-                releaseKeystoreFile.writeBytes(Base64.decoder.decode(env['KEYSTORE_BASE64']))
+                releaseKeystoreFile.bytes = Base64.decoder.decode(env['KEYSTORE_BASE64'])
                 storeFile releaseKeystoreFile
                 storePassword env['KEYSTORE_PASSWORD']
             }
