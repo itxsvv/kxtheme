@@ -5,9 +5,9 @@ import android.os.Environment;
 import vibecode.karootheme.ui.MapColors;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,7 +23,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public final class OfflineMapFileService {
-    private static final File LEGACY_SDCARD_DIRECTORY = new File("/sdcard");
     private static final Pattern OFFLINE_FILE_PATTERN = Pattern.compile("^offline_v(\\d+)\\.xml$");
     private static final String FARM_AREA_VALUE = "farm|farmyard|farmland|orchard|vineyard";
     private static final String SCRUB_AREA_VALUE = "grassland|scrub";
@@ -54,7 +53,11 @@ public final class OfflineMapFileService {
                 continue;
             }
 
-            final int version = Integer.parseInt(matcher.group(1));
+            final String versionValue = matcher.group(1);
+            if (versionValue == null) {
+                continue;
+            }
+            final int version = Integer.parseInt(versionValue);
             if (version <= latestVersion) {
                 continue;
             }
@@ -63,13 +66,6 @@ public final class OfflineMapFileService {
             latestFile = file;
         }
         return latestFile;
-    }
-
-    public static String getStorageDebugInfo() {
-        File searchDirectory = getSearchDirectory();
-        return "searchDirectory=" + searchDirectory.getAbsolutePath()
-                + ", exists=" + searchDirectory.exists()
-                + ", canRead=" + searchDirectory.canRead();
     }
 
     public static void backupIfNeeded(File sourceFile) {
@@ -83,7 +79,7 @@ public final class OfflineMapFileService {
         }
 
         try {
-            Files.copy(sourceFile.toPath(), backupFile.toPath(), StandardCopyOption.COPY_ATTRIBUTES);
+            copyFile(sourceFile, backupFile);
         } catch (IOException ignored) {
             ignored.printStackTrace();
         }
@@ -107,7 +103,7 @@ public final class OfflineMapFileService {
         }
 
         try {
-            Files.copy(backupFile.toPath(), sourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            copyFile(backupFile, sourceFile);
             return true;
         } catch (IOException ignored) {
             return false;
@@ -181,13 +177,24 @@ public final class OfflineMapFileService {
         return new File(sourceFile.getAbsolutePath() + ".bak");
     }
 
-    private static File getSearchDirectory() {
-        File externalStorageDirectory = Environment.getExternalStorageDirectory();
-        if (externalStorageDirectory != null
-                && externalStorageDirectory.exists()
-                && externalStorageDirectory.canRead()) {
-            return externalStorageDirectory;
+    private static void copyFile(final File sourceFile, final File targetFile) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(sourceFile);
+             FileOutputStream outputStream = new FileOutputStream(targetFile, false)) {
+            final byte[] buffer = new byte[8192];
+            int readBytes = inputStream.read(buffer);
+            while (readBytes != -1) {
+                outputStream.write(buffer, 0, readBytes);
+                readBytes = inputStream.read(buffer);
+            }
+            outputStream.getFD().sync();
         }
-        return LEGACY_SDCARD_DIRECTORY;
+    }
+
+    private static File getSearchDirectory() {
+        final File externalStorageDirectory = Environment.getExternalStorageDirectory();
+        if (externalStorageDirectory == null) {
+            return new File(Environment.getExternalStorageDirectory().getPath());
+        }
+        return externalStorageDirectory;
     }
 }

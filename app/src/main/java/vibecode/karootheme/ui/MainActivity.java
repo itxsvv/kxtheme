@@ -1,6 +1,8 @@
 package vibecode.karootheme.ui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -14,7 +16,9 @@ import android.widget.FrameLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AlertDialog;
 import androidx.activity.OnBackPressedCallback;
+import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -27,6 +31,8 @@ import vibecode.karootheme.service.MapColorStorage;
 import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
+    private static final int STORAGE_PERMISSION_REQUEST_CODE = 1001;
+
     private BottomNavigationView bottomNavigationView;
     private FrameLayout fragmentContainer;
     private View statusBarSpacer;
@@ -115,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean ensureManageExternalStorageAccess() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            return true;
+            return ensureLegacyStorageAccess();
         }
         if (Environment.isExternalStorageManager()) {
             return true;
@@ -131,6 +137,58 @@ public class MainActivity extends AppCompatActivity {
         intent.setData(Uri.parse("package:" + getPackageName()));
         startActivity(intent);
         return false;
+    }
+
+    private boolean ensureLegacyStorageAccess() {
+        final boolean hasReadPermission = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED;
+        final boolean hasWritePermission = Build.VERSION.SDK_INT > Build.VERSION_CODES.P
+                || ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED;
+        if (hasReadPermission && hasWritePermission) {
+            return true;
+        }
+
+        if (storageAccessRequested) {
+            showStorageAccessRequiredDialog();
+            return false;
+        }
+
+        storageAccessRequested = true;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    STORAGE_PERMISSION_REQUEST_CODE
+            );
+            return false;
+        }
+
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                },
+                STORAGE_PERMISSION_REQUEST_CODE
+        );
+        return false;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(final int requestCode, final String[] permissions,
+                                           final int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != STORAGE_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+        if (ensureManageExternalStorageAccess()) {
+            initializeOfflineMapFile();
+        }
     }
 
     private void showStorageAccessRequiredDialog() {
