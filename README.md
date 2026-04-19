@@ -1,4 +1,4 @@
-## KxTheme [100% Vibe Coded :)]
+## KxTheme
 [![Build](https://github.com/itxsvv/kxtheme/actions/workflows/android.yml/badge.svg)](https://github.com/itxsvv/kxtheme/actions/workflows/android.yml)
 ![GitHub Downloads](https://img.shields.io/github/downloads/itxsvv/kxtheme/latest/app-release.apk)
 
