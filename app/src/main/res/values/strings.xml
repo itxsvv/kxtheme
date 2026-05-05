@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">KxTheme</string>
+    <string name="first_view">Map</string>
+    <string name="second_view">Settings</string>
+    <string name="navigation_label_first">Map</string>
+    <string name="navigation_label_second">Settings</string>
+    <string name="first_title">Map</string>
+    <string name="second_title">Settings</string>
+    <string name="shared_preview">Selected area:</string>
+    <string name="current_file_label">Current file</string>
+    <string name="apply_button">Apply</string>
+    <string name="restore_file_button">Restore original file</string>
+    <string name="restore_colors_button">Restore colors</string>
+    <string name="forest_name">forest</string>
+    <string name="farm_name">farm</string>
+    <string name="scrub_name">scrub</string>
+    <string name="grass_name">grass</string>
+    <string name="river_name">river</string>
+</resources>
