@@ -21,7 +21,7 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void backupIfNeeded_createsBackupWhenMissing() throws IOException {
-        final File sourceFile = createFile("offline_v15.xml", "original");
+        final File sourceFile = createFile("mtb_v15.xml", "original");
 
         OfflineMapFileService.backupIfNeeded(sourceFile);
 
@@ -32,8 +32,8 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void backupIfNeeded_doesNotOverrideExistingBackup() throws IOException {
-        final File sourceFile = createFile("offline_v15.xml", "original");
-        final File backupFile = createFile("offline_v15.xml.bak", "backup");
+        final File sourceFile = createFile("mtb_v15.xml", "original");
+        final File backupFile = createFile("mtb_v15.xml.bak", "backup");
 
         OfflineMapFileService.backupIfNeeded(sourceFile);
 
@@ -42,7 +42,7 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void isBackupMissing_returnsTrueWhenBackupDoesNotExist() throws IOException {
-        final File sourceFile = createFile("offline_v15.xml", "original");
+        final File sourceFile = createFile("mtb_v15.xml", "original");
 
         final boolean backupMissing = OfflineMapFileService.isBackupMissing(sourceFile);
 
@@ -51,8 +51,8 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void isBackupMissing_returnsFalseWhenBackupExists() throws IOException {
-        final File sourceFile = createFile("offline_v15.xml", "original");
-        createFile("offline_v15.xml.bak", "backup");
+        final File sourceFile = createFile("mtb_v15.xml", "original");
+        createFile("mtb_v15.xml.bak", "backup");
 
         final boolean backupMissing = OfflineMapFileService.isBackupMissing(sourceFile);
 
@@ -61,8 +61,8 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void restoreFromBackup_restoresSourceAndKeepsBackup() throws IOException {
-        final File sourceFile = createFile("offline_v15.xml", "modified");
-        final File backupFile = createFile("offline_v15.xml.bak", "backup");
+        final File sourceFile = createFile("mtb_v15.xml", "modified");
+        final File backupFile = createFile("mtb_v15.xml.bak", "backup");
 
         final boolean restored = OfflineMapFileService.restoreFromBackup(sourceFile);
 
@@ -74,7 +74,7 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void restoreFromBackup_returnsFalseWhenBackupIsMissing() throws IOException {
-        final File sourceFile = createFile("offline_v15.xml", "modified");
+        final File sourceFile = createFile("mtb_v15.xml", "modified");
 
         final boolean restored = OfflineMapFileService.restoreFromBackup(sourceFile);
 
@@ -84,10 +84,10 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void findLatestOfflineFile_returnsFileWithLargestVersion() throws IOException {
-        createFile("offline_v2.xml", "2");
-        final File latestFile = createFile("offline_v15.xml", "15");
-        createFile("offline_v9.xml", "9");
-        createFile("offline_v15.xml.bak", "backup");
+        createFile("mtb_v2.xml", "2");
+        final File latestFile = createFile("mtb_v15.xml", "15");
+        createFile("mtb_v9.xml", "9");
+        createFile("mtb_v15.xml.bak", "backup");
         createFile("notes.txt", "ignored");
 
         final File foundFile = OfflineMapFileService.findLatestOfflineFile(temporaryFolder.getRoot());
@@ -98,7 +98,7 @@ public class OfflineMapFileServiceTest {
 
     @Test
     public void findLatestOfflineFile_returnsNullWhenDirectoryHasNoMatchingFiles() throws IOException {
-        createFile("offline_v15.xml.bak", "backup");
+        createFile("mtb_v15.xml.bak", "backup");
         createFile("notes.txt", "ignored");
 
         final File foundFile = OfflineMapFileService.findLatestOfflineFile(temporaryFolder.getRoot());

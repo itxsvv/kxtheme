@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public final class OfflineMapFileService {
-    private static final Pattern OFFLINE_FILE_PATTERN = Pattern.compile("^offline_v(\\d+)\\.xml$");
+    private static final Pattern OFFLINE_FILE_PATTERN = Pattern.compile("^mtb_v(\\d+)\\.xml$");
     private static final String FARM_AREA_VALUE = "farm|farmyard|farmland|orchard|vineyard";
     private static final String SCRUB_AREA_VALUE = "grassland|scrub";
 

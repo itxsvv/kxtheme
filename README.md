@@ -58,29 +58,29 @@ The backup file is kept and is not deleted.
 ## How Theme File Detection Works
 
 The app looks in `/sdcard/` for files with this format:  
-`offline_v<number>.xml`
+`mtb_v<number>.xml`
 Example:  
-`offline_v15.xml`
+`mtb_v15.xml`
 If there are multiple files, the app uses the file with the biggest number.  
 Example:
-- `offline_v8.xml`
-- `offline_v15.xml`
-- `offline_v20.xml`
+- `mtb_v8.xml`
+- `mtb_v15.xml`
+- `mtb_v20.xml`
 
 The app will use:
 
-`offline_v20.xml`
+`mtb_v20.xml`
 
 ## How Backup Files Work
 
 When the app starts:
-- it finds the latest `offline_v<number>.xml`
+- it finds the latest `mtb_v<number>.xml`
 - it checks whether a backup file already exists
 
 The backup file format is:
-`offline_v<number>.xml.bak`
+`mtb_v<number>.xml.bak`
 Example:  
-`offline_v20.xml.bak`  
+`mtb_v20.xml.bak`  
 If the backup file does not exist, the app creates it automatically.  
 If a new theme XML appears and its `.bak` file is missing, the app shows this message:  
 `A new theme file!.`    
